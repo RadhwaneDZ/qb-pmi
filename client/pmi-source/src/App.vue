@@ -49,7 +49,7 @@ export default {
   }),
 
   methods: {
-    ...mapActions(["setMdtData", "updateOfficer", "updatePvehicles", "recordRequest"]),
+    ...mapActions(["setMdtData", "updateOfficer", "updatePvehicles", "recordRequest", "playerSearchResults"]),
     closeMDT() {
       Nui.send("close");
       this.display = false;
@@ -98,6 +98,9 @@ export default {
           }
           if(eld.type == "recordRequestResult"){
             this.recordRequest(eld)
+          }
+          if(eld.type == "searchForPlayers"){
+            this.playerSearchResults(eld)
           }
           
         });

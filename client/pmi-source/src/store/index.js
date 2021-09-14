@@ -11,6 +11,7 @@ export default new Vuex.Store({
     citizenId: '',
     pvehicles: [],
     activePerson: {},
+    people: [],
   },
   mutations: {
   },
@@ -40,7 +41,11 @@ export default new Vuex.Store({
     },
     recordRequest({ state }, data) {
       console.log(data)
-      state.activePerson = data.activePerson
+      state.activePerson = data.player
+    },
+    playerSearchResults({ state }, data) {
+      console.log(data)
+      state.people = Object.values(data.people)
     },
   },
   modules: {

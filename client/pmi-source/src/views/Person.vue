@@ -12,6 +12,7 @@
               label="Search"
               color="primary"
               outlined
+              v-model="searchField"
             ></v-text-field>
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
@@ -19,7 +20,7 @@
                   icon
                   depressed
                   color="primary"
-                  @click="toggleDuty"
+                  @click="search('finger')"
                   v-bind="attrs"
                   v-on="on"
                 >
@@ -34,7 +35,7 @@
                   icon
                   depressed
                   color="primary"
-                  @click="toggleDuty"
+                  @click="search('name')"
                   v-bind="attrs"
                   v-on="on"
                 >
@@ -49,14 +50,14 @@
                   icon
                   depressed
                   color="primary"
-                  @click="toggleDuty"
+                  @click="search('dna')"
                   v-bind="attrs"
                   v-on="on"
                 >
-                  ID
+                  <v-icon>mdi-dna</v-icon>
                 </v-btn>
               </template>
-              <span>Search by ID</span>
+              <span>Search by DNA Hex</span>
             </v-tooltip>
           </v-card-title>
           <v-data-table
@@ -88,8 +89,7 @@
             {{ activePerson.name }}
           </v-card-title>
           <v-card-subtitle>
-            {{ activePerson.char.nationality }} {{ activePerson.gender }},
-            {{ age(activePerson.char.birthdate) }} years old
+            {{ activePerson.char.nationality }}, {{ age(activePerson.char.birthdate) }} year old {{ activePerson.gender }}
           </v-card-subtitle>
           <v-container class="pt-0">
             <v-row>
@@ -129,6 +129,7 @@
 
 <script>
 import { mapState, mapActions } from "vuex";
+import Nui from "../utils/Nui";
 export default {
   name: "Person",
 
@@ -144,18 +145,19 @@ export default {
         { text: "ID", value: "citizenid" },
         { text: "", value: "actions" },
       ],
-      people: [
-        {
-          name: "Tia-Sun Li",
-          phone: "0688928688",
-          citizenid: "UPP60694",
-        },
-      ],
+      // people: [
+      //   {
+      //     name: "Tia-Sun Li",
+      //     phone: "0688928688",
+      //     citizenid: "UPP60694",
+      //   },
+      // ],
+      searchField: "",
     };
   },
 
   computed: {
-    ...mapState(["activePerson"]),
+    ...mapState(["activePerson", "people"]),
   },
 
   methods: {
@@ -168,6 +170,17 @@ export default {
         age--;
       }
       return age;
+    },
+    search(type){
+      var searchData = {
+        type: type,
+        search: this.searchField,
+      }
+      Nui.send("searchForPlayers", searchData);
+    },
+    getPersonRecords(item){
+      console.log(item)
+      Nui.send("getRecord", item.citizenid);
     },
   },
 

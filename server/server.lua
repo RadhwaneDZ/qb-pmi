@@ -175,33 +175,81 @@ AddEventHandler('qb-pmi:server:getRecord', function(data)
     local resultPlayer
     local resultRecord
     if Config.enableOxmysql then
-        resultPlayer = exports.oxmysql:fetchSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = citizenId})
-        resultRecord = exports.oxmysql:fetchSync('SELECT * FROM player_mdt WHERE citizenid=@citizenid', {['@citizenid'] = citizenId})
+        resultPlayer = exports.oxmysql:fetchSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = data})
+        resultRecord = exports.oxmysql:fetchSync('SELECT * FROM player_mdt WHERE char_id=@citizenid', {['@citizenid'] = data})
     else
-        resultPlayer = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = citizenId})
-        resultRecord = exports.ghmattimysql:executeSync('SELECT * FROM player_mdt WHERE citizenid=@citizenid', {['@citizenid'] = citizenId})
+        resultPlayer = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = data})
+        resultRecord = exports.ghmattimysql:executeSync('SELECT * FROM player_mdt WHERE char_id=@citizenid', {['@citizenid'] = data})
     end
     for k,v in pairs(resultPlayer) do
+        local crimRecord = {}
         for x, y in pairs(resultRecord) do
-            if v.charinfo then
-                local playerData = json.decode(v.charinfo)
-                local gender = 'm'
-                if playerData.gender ~= 0 then
-                    gender = 'f'
-                end
-                local player = {
-                    char = playerData,
-                    name = playerData.firstname.. ' ' ..playerData.lastname,
-                    job = json.decode(v.job),
-                    gang = json.decode(v.gang),
-                    metadata = json.decode(v.metadata),
-                    gender = gender,
-                    record = y,
+            crimRecord = y
+        end
+        if v.charinfo then
+            local playerData = json.decode(v.charinfo)
+            local gender = 'Male'
+            if playerData.gender ~= 0 then
+                gender = 'Female'
+            end
+            local player = {
+                char = playerData,
+                name = playerData.firstname.. ' ' ..playerData.lastname,
+                job = json.decode(v.job),
+                gang = json.decode(v.gang),
+                metadata = json.decode(v.metadata),
+                gender = gender,
+                record = crimRecord,
+            }
+            TriggerClientEvent('qb-pmi:returnGetRecord', src, player)
+        end
+    end
+end)
+
+RegisterServerEvent('qb-pmi:server:searchForPlayers')
+AddEventHandler('qb-pmi:server:searchForPlayers', function(data)
+    local src = source
+    local people = {}
+    local results
+    if data.type == "name" then
+        terms = {"", ""}
+        local count = 1;
+        for substring in data.search:gmatch("%S+") do
+            terms[count] = substring
+            count = count + 1
+        end
+        results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last", {
+            ['@first'] = string.lower('%'.. terms[1] ..'%'), ['@last'] = string.lower('%'.. terms[2] ..'%')
+        })
+    elseif data.type == "finger" then
+        finger = exports.ghmattimysql:executeSync("SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint", {
+            ['@fingerprint'] = data.search
+        })
+        if finger ~= nil then
+            results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
+                ['@citId'] = finger[1].char_id
+            })
+        end
+    elseif data.type == "dna" then
+        local citId = ReverseDnaHash(data.search)
+        results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
+            ['@citId'] = citId
+        })
+    end
+    if results ~= nil then
+        for k,v in ipairs(results) do
+            local charinfo = json.decode(v.charinfo)
+            if charinfo ~= nil then
+                local person = {
+                    name = charinfo.firstname.. ' ' .. charinfo.lastname,
+                    phone = charinfo.phone,
+                    citizenid = v.citizenid,
                 }
-                TriggerClientEvent('qb-pmi:returnGetRecord', src, player)
+                table.insert(people, person)
             end
         end
     end
+    TriggerClientEvent('qb-pmi:returnPlayerSearch', src, people)
 end)
 
 RegisterServerEvent('qb-pmi:server:setOfficerRadio')
@@ -223,6 +271,12 @@ function updateDutyList(citizenId, duty)
 end
 function updateCallsigns(citizenId, cs)
     officers[citizenId].callsign = cs
+end
+
+function ReverseDnaHash(str)
+    return (str:gsub('..', function (cc)
+        return string.char(tonumber(cc, 16))
+    end))
 end
 
 function dump(o)

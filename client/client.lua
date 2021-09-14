@@ -46,6 +46,16 @@ AddEventHandler('qb-pmi:returnGetRecord', function(player)
     })
 end)
 
+RegisterNetEvent('qb-pmi:returnPlayerSearch')
+AddEventHandler('qb-pmi:returnPlayerSearch', function(people)
+    SendNUIMessage({
+        type = "searchForPlayers",
+        people = people,
+    })
+end)
+
+-- NUI Callbacks
+
 RegisterNUICallback('close', function(data)
     SetNuiFocus(false, false)
 end)
@@ -61,4 +71,13 @@ end)
 
 RegisterNUICallback('storeVehicle', function(plate)
     TriggerServerEvent('qb-pmi:server:vehicleStore', plate)
+end)
+
+RegisterNUICallback('getRecord', function(data)
+    TriggerServerEvent('qb-pmi:server:getRecord', data)
+end)
+
+
+RegisterNUICallback('searchForPlayers', function(data)
+    TriggerServerEvent('qb-pmi:server:searchForPlayers', data)
 end)
