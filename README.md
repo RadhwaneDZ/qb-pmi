@@ -9,12 +9,15 @@ Development of this resources is still ongoing. Theres a lot to do so its going 
 ![Person Screen](https://i.imgur.com/sgkf7Ul.png)
 
 ## Dependencies
-- [qb-core](https://github.com/qbcore-framework/qb-core) (Duhh :D)
+- [qb-core](https://github.com/qbcore-framework/qb-core)
 - [qb-police](https://github.com/qbcore-framework/qb-policejob)
 - [ghmattimysql](https://github.com/GHMatti/ghmattimysql/releases) or [oxmysql](https://github.com/overextended/oxmysql/releases)
 
 ## Installation
 Please read this carefully otherwise the PMI will not work.
+
+### SQL
+Run the `qb-pmi.sql` file in your database to ensure you have the tables needed for the PMI
 
 ### Config file changes
 ``PoliceVehicles`` - Set these to the spawn names and names of the vehicles your officers will use.
