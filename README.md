@@ -11,12 +11,14 @@ Development of this resources is still ongoing. Theres a lot to do so its going 
 ## Dependencies
 - [qb-core](https://github.com/qbcore-framework/qb-core) (Duhh :D)
 - [qb-police](https://github.com/qbcore-framework/qb-policejob)
+- [ghmattimysql](https://github.com/GHMatti/ghmattimysql/releases) or [oxmysql](https://github.com/overextended/oxmysql/releases)
 
 ## Installation
 Please read this carefully otherwise the PMI will not work.
 
 ### Config file changes
 ``PoliceVehicles`` - Set these to the spawn names and names of the vehicles your officers will use.
+``enableOxmysql`` - Set to `true` if you are using oxmysql instead of ghmattimysql
 
 
 ### Functions to add in other resources
