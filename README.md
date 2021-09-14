@@ -6,7 +6,7 @@ Development of this resources is still ongoing. Theres a lot to do so its going 
 
 
 ![Duty Screen](https://i.imgur.com/IjLWkjj.png)
-![Person Screen](https://i.imgur.com/ee6Xcfz.png)
+![Person Screen](https://i.imgur.com/sgkf7Ul.png)
 
 ## Dependencies
 - [qb-core](https://github.com/qbcore-framework/qb-core) (Duhh :D)
