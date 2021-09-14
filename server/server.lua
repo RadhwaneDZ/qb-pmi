@@ -218,23 +218,48 @@ AddEventHandler('qb-pmi:server:searchForPlayers', function(data)
             terms[count] = substring
             count = count + 1
         end
-        results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last", {
-            ['@first'] = string.lower('%'.. terms[1] ..'%'), ['@last'] = string.lower('%'.. terms[2] ..'%')
-        })
-    elseif data.type == "finger" then
-        finger = exports.ghmattimysql:executeSync("SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint", {
-            ['@fingerprint'] = data.search
-        })
-        if finger ~= nil then
-            results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
-                ['@citId'] = finger[1].char_id
+        if Config.enableOxmysql then
+            results = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last", {
+                ['@first'] = string.lower('%'.. terms[1] ..'%'), ['@last'] = string.lower('%'.. terms[2] ..'%')
+            })
+        else
+            results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last", {
+                ['@first'] = string.lower('%'.. terms[1] ..'%'), ['@last'] = string.lower('%'.. terms[2] ..'%')
             })
         end
+    elseif data.type == "finger" then
+        if Config.enableOxmysql then
+            local finger = exports.oxmysql:fetchSync("SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint", {
+                ['@fingerprint'] = data.search
+            })
+            if finger ~= nil then
+                results = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
+                    ['@citId'] = finger[1].char_id
+                })
+            end
+        else
+            local finger = exports.ghmattimysql:executeSync("SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint", {
+                ['@fingerprint'] = data.search
+            })
+            if finger ~= nil then
+                results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
+                    ['@citId'] = finger[1].char_id
+                })
+            end
+        end
+        
     elseif data.type == "dna" then
         local citId = ReverseDnaHash(data.search)
-        results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
-            ['@citId'] = citId
-        })
+        if Config.enableOxmysql then
+            results = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
+                ['@citId'] = citId
+            })
+        else
+            results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
+                ['@citId'] = citId
+            })
+        end
+        
     end
     if results ~= nil then
         for k,v in ipairs(results) do
