@@ -1,7 +1,7 @@
 # Police Management Interface: qb-pmi [WIP]
 This PMI was built for the purpose of getting rid of all the other google sheets and discord channels we were using to keep track of police things. Not all features might make sense for your server.
 
-[Support my Porjects](https://ko-fi.com/fjhstudios)
+[Support my Projects](https://ko-fi.com/fjhstudios)
 
 [Discord](https://discord.gg/CN8chwsK7E)
 ## WIP
