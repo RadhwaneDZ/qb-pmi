@@ -5,14 +5,6 @@ Config = {
     Jobs = {'police'}, -- Wich jobs have access
     enableOxmysql = false, -- Use oxmysql instead of ghmattimysql
     ImageChangeLink = 'https://i.imgur.com/', -- Only allow images where the url starts with this (Mainly because imgur just works)
-    PoliceVehicles = { -- Names of vehicles that the police can drive for in the duty vehicle list
-        ["scpdvic"] = "Crown VIC",
-		["polchar"] = "Charger",
-		["police2"] = "Heat",
-        ["demon"] = "Demon",
-        ["bmwm5"] = "BMW M5",
-		["mclarenpd"] = "McLaren",
-    },
     
     Colors = { -- Car colors for neat text
         ['0'] = 'Metallic Black',

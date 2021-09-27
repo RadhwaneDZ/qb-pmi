@@ -21,7 +21,6 @@ Please read this carefully otherwise the PMI will not work.
 Run the `qb-pmi.sql` file in your database to ensure you have the tables needed for the PMI
 
 ### Config file changes
-``PoliceVehicles`` - Set these to the spawn names and names of the vehicles your officers will use.
 
 ``enableOxmysql`` - Set to `true` if you are using oxmysql instead of ghmattimysql
 
