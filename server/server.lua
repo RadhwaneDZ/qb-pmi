@@ -40,36 +40,43 @@ RegisterCommand("mdt-records", function(source, args)
     local resultPlayer
     local resultRecord
     if Config.enableOxmysql then
-        resultPlayer = exports.oxmysql:fetchSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = citizenId})
-        resultRecord = exports.oxmysql:fetchSync('SELECT * FROM player_mdt WHERE char_id=@citizenid', {['@citizenid'] = citizenId})
+        resultPlayer = exports.oxmysql:fetchSync(
+                           'SELECT * FROM players WHERE citizenid=@citizenid',
+                           {['@citizenid'] = citizenId})
+        resultRecord = exports.oxmysql:fetchSync(
+                           'SELECT * FROM player_mdt WHERE char_id=@citizenid',
+                           {['@citizenid'] = citizenId})
     else
-        resultPlayer = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = citizenId})
-        resultRecord = exports.ghmattimysql:executeSync('SELECT * FROM player_mdt WHERE char_id=@citizenid', {['@citizenid'] = citizenId})
+        resultPlayer = exports.ghmattimysql:executeSync(
+                           'SELECT * FROM players WHERE citizenid=@citizenid',
+                           {['@citizenid'] = citizenId})
+        resultRecord = exports.ghmattimysql:executeSync(
+                           'SELECT * FROM player_mdt WHERE char_id=@citizenid',
+                           {['@citizenid'] = citizenId})
     end
-    for k,v in pairs(resultPlayer) do
-            if v.charinfo then
-                local playerData = json.decode(v.charinfo)
-                local gender = 'Male'
-                if playerData.gender ~= 0 then
-                    gender = 'Female'
-                end
-                local player = {
-                    char = playerData,
-                    name = playerData.firstname.. ' ' ..playerData.lastname,
-                    job = json.decode(v.job),
-                    gang = json.decode(v.gang),
-                    metadata = json.decode(v.metadata),
-                    gender = gender,
-                    record = resultRecord,
-                }
-                TriggerClientEvent('qb-pmi:returnGetRecord', src, player)
-            end
+    for k, v in pairs(resultPlayer) do
+        if v.charinfo then
+            local playerData = json.decode(v.charinfo)
+            local gender = 'Male'
+            if playerData.gender ~= 0 then gender = 'Female' end
+            local player = {
+                char = playerData,
+                name = playerData.firstname .. ' ' .. playerData.lastname,
+                job = json.decode(v.job),
+                gang = json.decode(v.gang),
+                metadata = json.decode(v.metadata),
+                gender = gender,
+                record = resultRecord
+            }
+            TriggerClientEvent('qb-pmi:returnGetRecord', src, player)
+        end
     end
 end)
 
 -- Stuff that can be done on resource start
 Citizen.CreateThread(function()
-    local query = "SELECT citizenid, charinfo, job, metadata FROM players WHERE job LIKE '%police%'"
+    local query =
+        "SELECT citizenid, charinfo, job, metadata FROM players WHERE job LIKE '%police%'"
     local result
     if Config.enableOxmysql then
         result = exports.oxmysql:fetchSync(query, {})
@@ -87,7 +94,7 @@ Citizen.CreateThread(function()
             phone = charinfo.phone,
             onDuty = false,
             callsign = metadata.callsign,
-            radio = "Off",
+            radio = "Off"
         }
         officers[v.citizenid] = officer
     end
@@ -103,7 +110,7 @@ QBCore.Functions.CreateCallback('qb-pmi:server:getmdtdata', function(source, cb)
             officers = officers,
             pvehicles = pvehicles,
             duty = xPlayer.PlayerData.job.onduty,
-            citizenId = xPlayer.PlayerData.citizenid,
+            citizenId = xPlayer.PlayerData.citizenid
         }
         cb(mdtData)
     end
@@ -122,25 +129,21 @@ AddEventHandler('qb-pmi:server:updateDuty', function()
 end)
 
 RegisterServerEvent('qb-pmi:server:vehicleTakeout')
-AddEventHandler('qb-pmi:server:vehicleTakeout', function(plate, vehicleInfo)
+AddEventHandler('qb-pmi:server:vehicleTakeout', function(plate, vehModel)
     local src = source
     local xPlayer = QBCore.Functions.GetPlayer(src)
     local citId = xPlayer.PlayerData.citizenid
     local model = "UNKNOWN"
-    for k,v in pairs(Config.PoliceVehicles) do
-        if k == vehicleInfo then
-            model = v
-            break
-        end
+    for k, v in pairs(QBCore.Shared.Vehicles) do
+        if tonumber(v["hash"]) == vehModel then model = v["name"] end
     end
     local vehicle = {
         plate = plate,
         model = model,
-        ownerName = ( officers[citId].firstname .. " " .. officers[citId].lastname),
+        ownerName = (officers[citId].firstname .. " " ..
+            officers[citId].lastname),
         ownerCallSign = officers[citId].callsign,
-        occupants = {
-            citId
-        },
+        occupants = {citId}
     }
     pvehicles[plate] = vehicle
     TriggerClientEvent('qb-pmi:updatePvehicles', -1, pvehicles)
@@ -175,31 +178,35 @@ AddEventHandler('qb-pmi:server:getRecord', function(data)
     local resultPlayer
     local resultRecord
     if Config.enableOxmysql then
-        resultPlayer = exports.oxmysql:fetchSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = data})
-        resultRecord = exports.oxmysql:fetchSync('SELECT * FROM player_mdt WHERE char_id=@citizenid', {['@citizenid'] = data})
+        resultPlayer = exports.oxmysql:fetchSync(
+                           'SELECT * FROM players WHERE citizenid=@citizenid',
+                           {['@citizenid'] = data})
+        resultRecord = exports.oxmysql:fetchSync(
+                           'SELECT * FROM player_mdt WHERE char_id=@citizenid',
+                           {['@citizenid'] = data})
     else
-        resultPlayer = exports.ghmattimysql:executeSync('SELECT * FROM players WHERE citizenid=@citizenid', {['@citizenid'] = data})
-        resultRecord = exports.ghmattimysql:executeSync('SELECT * FROM player_mdt WHERE char_id=@citizenid', {['@citizenid'] = data})
+        resultPlayer = exports.ghmattimysql:executeSync(
+                           'SELECT * FROM players WHERE citizenid=@citizenid',
+                           {['@citizenid'] = data})
+        resultRecord = exports.ghmattimysql:executeSync(
+                           'SELECT * FROM player_mdt WHERE char_id=@citizenid',
+                           {['@citizenid'] = data})
     end
-    for k,v in pairs(resultPlayer) do
+    for k, v in pairs(resultPlayer) do
         local crimRecord = {}
-        for x, y in pairs(resultRecord) do
-            crimRecord = y
-        end
+        for x, y in pairs(resultRecord) do crimRecord = y end
         if v.charinfo then
             local playerData = json.decode(v.charinfo)
             local gender = 'Male'
-            if playerData.gender ~= 0 then
-                gender = 'Female'
-            end
+            if playerData.gender ~= 0 then gender = 'Female' end
             local player = {
                 char = playerData,
-                name = playerData.firstname.. ' ' ..playerData.lastname,
+                name = playerData.firstname .. ' ' .. playerData.lastname,
                 job = json.decode(v.job),
                 gang = json.decode(v.gang),
                 metadata = json.decode(v.metadata),
                 gender = gender,
-                record = crimRecord,
+                record = crimRecord
             }
             TriggerClientEvent('qb-pmi:returnGetRecord', src, player)
         end
@@ -219,56 +226,62 @@ AddEventHandler('qb-pmi:server:searchForPlayers', function(data)
             count = count + 1
         end
         if Config.enableOxmysql then
-            results = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last", {
-                ['@first'] = string.lower('%'.. terms[1] ..'%'), ['@last'] = string.lower('%'.. terms[2] ..'%')
-            })
+            results = exports.oxmysql:fetchSync(
+                          "SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last",
+                          {
+                    ['@first'] = string.lower('%' .. terms[1] .. '%'),
+                    ['@last'] = string.lower('%' .. terms[2] .. '%')
+                })
         else
-            results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last", {
-                ['@first'] = string.lower('%'.. terms[1] ..'%'), ['@last'] = string.lower('%'.. terms[2] ..'%')
-            })
+            results = exports.ghmattimysql:executeSync(
+                          "SELECT * FROM `players` WHERE `charinfo` LIKE @first AND `charinfo` LIKE @last",
+                          {
+                    ['@first'] = string.lower('%' .. terms[1] .. '%'),
+                    ['@last'] = string.lower('%' .. terms[2] .. '%')
+                })
         end
     elseif data.type == "finger" then
         if Config.enableOxmysql then
-            local finger = exports.oxmysql:fetchSync("SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint", {
-                ['@fingerprint'] = data.search
-            })
+            local finger = exports.oxmysql:fetchSync(
+                               "SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint",
+                               {['@fingerprint'] = data.search})
             if finger ~= nil then
-                results = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
-                    ['@citId'] = finger[1].char_id
-                })
+                results = exports.oxmysql:fetchSync(
+                              "SELECT * FROM `players` WHERE `citizenid` LIKE @citId",
+                              {['@citId'] = finger[1].char_id})
             end
         else
-            local finger = exports.ghmattimysql:executeSync("SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint", {
-                ['@fingerprint'] = data.search
-            })
+            local finger = exports.ghmattimysql:executeSync(
+                               "SELECT char_id FROM `player_mdt` WHERE `fingerprint` LIKE @fingerprint",
+                               {['@fingerprint'] = data.search})
             if finger ~= nil then
-                results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
-                    ['@citId'] = finger[1].char_id
-                })
+                results = exports.ghmattimysql:executeSync(
+                              "SELECT * FROM `players` WHERE `citizenid` LIKE @citId",
+                              {['@citId'] = finger[1].char_id})
             end
         end
-        
+
     elseif data.type == "dna" then
         local citId = ReverseDnaHash(data.search)
         if Config.enableOxmysql then
-            results = exports.oxmysql:fetchSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
-                ['@citId'] = citId
-            })
+            results = exports.oxmysql:fetchSync(
+                          "SELECT * FROM `players` WHERE `citizenid` LIKE @citId",
+                          {['@citId'] = citId})
         else
-            results = exports.ghmattimysql:executeSync("SELECT * FROM `players` WHERE `citizenid` LIKE @citId", {
-                ['@citId'] = citId
-            })
+            results = exports.ghmattimysql:executeSync(
+                          "SELECT * FROM `players` WHERE `citizenid` LIKE @citId",
+                          {['@citId'] = citId})
         end
-        
+
     end
     if results ~= nil then
-        for k,v in ipairs(results) do
+        for k, v in ipairs(results) do
             local charinfo = json.decode(v.charinfo)
             if charinfo ~= nil then
                 local person = {
-                    name = charinfo.firstname.. ' ' .. charinfo.lastname,
+                    name = charinfo.firstname .. ' ' .. charinfo.lastname,
                     phone = charinfo.phone,
-                    citizenid = v.citizenid,
+                    citizenid = v.citizenid
                 }
                 table.insert(people, person)
             end
@@ -288,20 +301,13 @@ end)
 
 -- Callbacks
 
-
-
 -- Functions
-function updateDutyList(citizenId, duty)
-    officers[citizenId].onDuty = duty
-end
-function updateCallsigns(citizenId, cs)
-    officers[citizenId].callsign = cs
-end
+function updateDutyList(citizenId, duty) officers[citizenId].onDuty = duty end
+function updateCallsigns(citizenId, cs) officers[citizenId].callsign = cs end
 
 function ReverseDnaHash(str)
-    return (str:gsub('..', function (cc)
-        return string.char(tonumber(cc, 16))
-    end))
+    return
+        (str:gsub('..', function(cc) return string.char(tonumber(cc, 16)) end))
 end
 
 function dump(o)

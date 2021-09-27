@@ -32,6 +32,16 @@
           <v-card-title>
             Vehicles in service
             <v-spacer></v-spacer>
+            <v-btn icon color="primary" @click="addVehicle">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon color="primary" dark v-bind="attrs" v-on="on">
+                    mdi-plus-box
+                  </v-icon>
+                </template>
+                <span>Add current vehicle</span>
+              </v-tooltip>
+            </v-btn>
           </v-card-title>
           <v-data-table
             :headers="pvehicleHeaders"
@@ -80,10 +90,20 @@
               </td>
             </template>
             <template v-slot:[`item.actions`]="{ item }">
-              <v-btn v-if="inVehicle(item)" icon color="red" @click="toggleInVehicle(item, false)">
+              <v-btn
+                v-if="inVehicle(item)"
+                icon
+                color="red"
+                @click="toggleInVehicle(item, false)"
+              >
                 <v-icon>mdi-car-arrow-right</v-icon>
               </v-btn>
-              <v-btn v-else icon color="green" @click="toggleInVehicle(item, true)">
+              <v-btn
+                v-else
+                icon
+                color="green"
+                @click="toggleInVehicle(item, true)"
+              >
                 <v-icon>mdi-car-arrow-left</v-icon>
               </v-btn>
               <v-btn icon color="orange" @click="storeVehicle(item)">
@@ -126,7 +146,7 @@ export default {
         { text: "Vehicle", value: "model" },
         { text: "Owner Name", value: "ownerName" },
         { text: "Owner Callsign", value: "ownerCallSign" },
-        { text: "", value: "actions", align: "end", sortable: false,},
+        { text: "", value: "actions", align: "end", sortable: false },
         { text: "", value: "data-table-expand" },
       ],
       expanded: [],
@@ -148,21 +168,24 @@ export default {
         }
       }
     },
-    inVehicle(item){
+    inVehicle(item) {
       for (const occupant of item.occupants) {
-        if(this.citizenId == occupant){
-          return true
+        if (this.citizenId == occupant) {
+          return true;
         }
       }
       return false;
     },
-    storeVehicle(item){
+    storeVehicle(item) {
       Nui.send("storeVehicle", item.plate);
     },
-    toggleInVehicle(item, getIn){
+    toggleInVehicle(item, getIn) {
       item.getIn = getIn;
       Nui.send("toggleInVehicle", item);
     },
+    addVehicle(){
+      Nui.send("addCurrentVehicle");
+    }
   },
 
   components: {},

@@ -1,6 +1,7 @@
 # Police Management Interface: qb-pmi [WIP]
 This PMI was built for the purpose of getting rid of all the other google sheets and discord channels we were using to keep track of police things. Not all features might make sense for your server.
 
+[Support Discord](https://discord.gg/CN8chwsK7E)
 ## WIP
 Development of this resources is still ongoing. Theres a lot to do so its going to take some time. Here how ever are some screenshots of things that are being built at the moment.
 
@@ -25,7 +26,7 @@ Run the `qb-pmi.sql` file in your database to ensure you have the tables needed 
 ``enableOxmysql`` - Set to `true` if you are using oxmysql instead of ghmattimysql
 
 
-### Functions to add in other resources
+### Required Functions
 These functions need to be added to other resources in order for PMI functionality to work fully
 #### qb-policejob/client/main.lua
 ```lua
@@ -37,85 +38,30 @@ AddEventHandler('police:client:setDuty', function(duty)
     onDuty = duty
 end)
 ```
-#### qb-policejob/client/job.lua
-Modify TakeOutVehicle function with 
+
+### Optional Functions
+These functions or triggers improve the feel and experience of using the PMI. You do not need to do these but it is recommended.
+
+#### Automatic updating of on duty vehicles
+Where you take out the police vehicle add the following code to send the vehicle to the PMI (change the `vehicle` variable to the correct variable with the vehicle the player is in)
 ```lua
-TriggerServerEvent("qb-pmi:server:vehicleTakeout", GetVehicleNumberPlateText(veh), vehicleInfo)
+TriggerServerEvent("qb-pmi:server:vehicleTakeout", GetVehicleNumberPlateText(vehicle), GetEntityModel(vehicle))
 ```
-Example of what this looks like, the line was added on line 12
-```lua
---Example of what this looks like, the line was added on line 12
-1  function TakeOutVehicle(vehicleInfo)
-2     local coords = Config.Locations["vehicle"][currentGarage]
-3     QBCore.Functions.SpawnVehicle(vehicleInfo, function(veh)
-4         SetVehicleNumberPlateText(veh, "UNIT"..tostring(math.random(1000, 9999)))
-5         SetEntityHeading(veh, coords.w)
-6         exports['LegacyFuel']:SetFuel(veh, 100.0)
-7         closeMenuFull()
-8         TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-9         TriggerEvent("vehiclekeys:client:SetOwner", GetVehicleNumberPlateText(veh))
-10        TriggerServerEvent("inventory:server:addTrunkItems", GetVehicleNumberPlateText(veh), Config.CarItems)
-11        SetVehicleEngineOn(veh, true, true)
-12        TriggerServerEvent("qb-pmi:server:vehicleTakeout", GetVehicleNumberPlateText(veh), vehicleInfo)
-13    end, coords, true)
-14 end
-```
-Then in the same file find ``for k, v in pairs(Config.Locations["vehicle"]) do`` and add the following before QBCore.Functions.DeleteVehicle
+Then for storing the vehicle add the following for while the player is still in the vehicle
 ```lua
 TriggerServerEvent("qb-pmi:server:vehicleStore", GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId())))
 ```
 
-```lua
-for k, v in pairs(Config.Locations["vehicle"]) do
-                    if #(pos - vector3(v.x, v.y, v.z)) < 7.5 then
-                         if onDuty then
-                             DrawMarker(2, v.x, v.y, v.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.3, 0.2, 0.15, 200, 0, 0, 222, false, false, false, true, false, false, false)
-                             if #(pos - vector3(v.x, v.y, v.z)) < 1.5 then
-                                 if IsPedInAnyVehicle(PlayerPedId(), false) then
-                                     DrawText3D(v.x, v.y, v.z, "~g~E~w~ - Store vehicle")
-                                 else
-                                     DrawText3D(v.x, v.y, v.z, "~g~E~w~ - Vehicles")
-                                 end
-                                 if IsControlJustReleased(0, 38) then
-                                     if IsPedInAnyVehicle(PlayerPedId(), false) then
-                                        TriggerServerEvent("qb-pmi:server:vehicleStore", GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId())))
-                                        QBCore.Functions.DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
-                                     else
-                                         MenuGarage()
-                                         currentGarage = k
-                                         Menu.hidden = not Menu.hidden
-                                     end
-                                 end
-                                 Menu.renderGUI()
-                             end  
-                         end
-                     end
-                end
-```
+#### Auto setting a units radio channel
+You need to add a call to update the officers radio channel on the PMI 
 
-### pma-voice/client/module/radio.lua
-You need to add a call to update the officers radio channel on the PMI
+**HINT:** If you are using pma-voice you need to go to `pma-voice/client/module/radio.lua` and add it in the `setRadioChannel(channel)` function.
 ```lua
 TriggerServerEvent('qb-pmi:server:setOfficerRadio', channel)
 ```
-Add this in the ``setRadioChannel(channel)`` function like this:
-```lua
-function setRadioChannel(channel)
-	if GetConvarInt('voice_enableRadios', 1) ~= 1 then return end
-	TriggerServerEvent('pma-voice:setPlayerRadio', channel)
-	TriggerServerEvent('qb-pmi:server:setOfficerRadio', channel)
-	plyState:set('radioChannel', channel, GetConvarInt('voice_syncData', 0) == 1)
-	radioChannel = channel
-	if GetConvarInt('voice_enableUi', 1) == 1 then
-		SendNUIMessage({
-			radioChannel = channel,
-			radioEnabled = radioEnabled
-		})
-	end
-end
-```
+The `channel` variable should be the numerical channel value.
 
-## Development Setup
+## Development Setup [Not needed for normal usage]
 The source files for the UI are included in `client/pmi-source`, these can be used to change the PMI or add new things.
 
 **Disclaimer:** Just because you changed something or added a new feature to the PMI does not give you rights to release the whole PMI as your own work. If its an amazing feature that everyone and there dog needs then make a pull request on github and I can see if it can become a permanent part of the project.

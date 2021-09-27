@@ -1,6 +1,7 @@
 RegisterNetEvent('qb-pmi:open')
 AddEventHandler('qb-pmi:open', function()
     QBCore.Functions.TriggerCallback('qb-pmi:server:getmdtdata', function(mdtData)
+        
         SetNuiFocus(true, true)
         SendNUIMessage({
             officers = mdtData.officers,
@@ -81,3 +82,14 @@ end)
 RegisterNUICallback('searchForPlayers', function(data)
     TriggerServerEvent('qb-pmi:server:searchForPlayers', data)
 end)
+
+RegisterNUICallback('addCurrentVehicle', function()
+    local PlayerPed = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(PlayerPed)
+    if vehicle then
+        local plate = GetVehicleNumberPlateText(vehicle)
+        local vehModel = GetEntityModel(vehicle)
+        TriggerServerEvent('qb-pmi:server:vehicleTakeout', plate, vehModel)
+    end
+end)
+
