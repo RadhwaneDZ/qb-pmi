@@ -2,7 +2,11 @@
   <v-container fluid style="min-height: 71vh">
     <v-row>
       <v-col md="4" class="pr-0">
-        <v-card dark class="elevation-1 ml-4 mr-4 overflow-y-auto" max-height="68vh">
+        <v-card
+          dark
+          class="elevation-1 ml-4 mr-4 overflow-y-auto"
+          max-height="68vh"
+        >
           <v-card-title>
             People
             <v-spacer></v-spacer>
@@ -84,12 +88,26 @@
         </v-card>
       </v-col>
       <v-col md="4" class="pl-0 pr-0">
-        <v-card elevation="1" dark max-height="68vh" class="overflow-y-auto" v-if="activePerson.name">
+        <v-card
+          elevation="1"
+          dark
+          max-height="68vh"
+          class="overflow-y-auto"
+          v-if="activePerson.name"
+        >
           <v-card-title>
             {{ activePerson.name }}
+            <v-spacer></v-spacer>
+            <v-chip class="mr-1 warningChip">Warrant</v-chip>
+            <v-chip color="red" class="mr-1">Armed</v-chip>
+            <v-chip v-if="activePerson.record" color="orange" class="mr-1">Record</v-chip>
+            <v-chip v-else color="green" class="mr-1">No Record</v-chip>
+            
           </v-card-title>
           <v-card-subtitle>
-            {{ activePerson.char.nationality }}, {{ age(activePerson.char.birthdate) }} year old {{ activePerson.gender }}
+            {{ activePerson.char.nationality }},
+            {{ age(activePerson.char.birthdate) }} year old
+            {{ activePerson.gender }}
           </v-card-subtitle>
           <v-container class="pt-0">
             <v-row>
@@ -107,12 +125,8 @@
             </v-row>
           </v-container>
           <v-card-actions>
-            <v-btn class="ma-2" outlined color="primary">
-              Issue Ticket
-            </v-btn>
-            <v-btn class="ma-2" outlined color="primary">
-              Create Report
-            </v-btn>
+            <v-btn class="ma-2" outlined color="primary"> Issue Ticket </v-btn>
+            <v-btn class="ma-2" outlined color="primary"> Create Report </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -171,15 +185,15 @@ export default {
       }
       return age;
     },
-    search(type){
+    search(type) {
       var searchData = {
         type: type,
         search: this.searchField,
-      }
+      };
       Nui.send("searchForPlayers", searchData);
     },
-    getPersonRecords(item){
-      console.log(item)
+    getPersonRecords(item) {
+      console.log(item);
       Nui.send("getRecord", item.citizenid);
     },
   },
@@ -187,3 +201,19 @@ export default {
   components: {},
 };
 </script>
+<style>
+
+  .warningChip {
+    animation: blink 0.4s infinite alternate;
+  }
+
+  @keyframes blink {
+    from {
+      background-color: blue;
+    }
+
+    to {
+      background-color: red;
+    }
+  }
+</style>
